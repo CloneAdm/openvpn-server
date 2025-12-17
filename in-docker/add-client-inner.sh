@@ -7,7 +7,7 @@ SERVER_PORT="1194"
 
 BASE="/etc/openvpn"
 PKI="$BASE/pki"
-TEMPLATE="$BASE/client.ovpn.template"
+TEMPLATE="/etc/openvpn-scripts/client.ovpn.template"
 OUT_DIR="$BASE/clients"
 
 mkdir -p "$OUT_DIR"

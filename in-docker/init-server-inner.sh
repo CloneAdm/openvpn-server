@@ -1,8 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-: "${SERVER_ADDRESS:?SERVER_ADDRESS is required}"
+# Цвета
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+PURPLE='\033[0;35m'
+NC='\033[0m'
 
+: "${SERVER_ADDRESS:?${RED}Ошибка:${NC} SERVER_ADDRESS обязателен}"
+
+# Настройки VPN
 PORT=1194
 PROTO=udp
 
@@ -15,33 +24,18 @@ DNS2="8.8.8.8"
 VERB=3
 SERVER_CERT_NAME="__server__"
 
-TEMPLATE="/etc/openvpn/openvpn.conf.template"
+TEMPLATE="/etc/openvpn-scripts/openvpn.conf.template"
 CONF="/etc/openvpn/openvpn.conf"
 
-echo "[*] Generating base OpenVPN config"
+# Генерация openvpn.conf из шаблона
+echo -e "${CYAN}[*] Генерация openvpn.conf из шаблона...${NC}"
 
-if [[ ! -f ovpn_env.sh ]]; then
-  ovpn_genconfig \
-    -u "${PROTO}://${SERVER_ADDRESS}" \
-    -C AES-256-GCM \
-    -a SHA512 \
-    -c
+if [[ ! -f "$TEMPLATE" ]]; then
+  echo -e "${RED}[ERROR] Шаблон $TEMPLATE не найден${NC}"
+  exit 1
 fi
 
-echo "[*] Initializing PKI"
-
-if [[ ! -d pki ]]; then
-  ovpn_initpki
-fi
-
-echo "[*] Creating server certificate"
-
-if [[ ! -f "pki/issued/${SERVER_CERT_NAME}.crt" ]]; then
-  easyrsa build-server-full "${SERVER_CERT_NAME}" nopass
-fi
-
-echo "[*] Generating openvpn.conf from template"
-
+# Замена переменных в шаблоне
 sed \
   -e "s|{{PORT}}|${PORT}|g" \
   -e "s|{{PROTO}}|${PROTO}|g" \
@@ -53,4 +47,5 @@ sed \
   -e "s|{{SERVER_CERT_NAME}}|${SERVER_CERT_NAME}|g" \
   "$TEMPLATE" > "$CONF"
 
-echo "[OK] Initialization finished"
+echo -e "${GREEN}[OK] Конфигурация openvpn.conf сгенерирована${NC}"
+echo -e "${PURPLE}[=== ГОТОВО ===]${NC}"

@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   openvpn:
-    build: ./docker
+    build: .
     image: openvpn-server:local
     container_name: openvpn-server
     cap_add:
@@ -11,7 +9,9 @@ services:
       - "1194:1194/udp"
     restart: unless-stopped
     volumes:
-      - ./data:/etc/openvpn
+      - ./data/:/etc/openvpn
+#      - ./data/pki:/etc/openvpn/pki         # все ключи и конфиги сохраняются
+#      - ./data/clients:/etc/openvpn/clients # все клиентские ovpn сохраняются
     environment:
       EASYRSA_KEY_SIZE: 4096
       EASYRSA_ALGO: ec

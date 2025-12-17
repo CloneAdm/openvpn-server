@@ -19,7 +19,7 @@ docker exec \
   -e CLIENT_NAME="$CLIENT_NAME" \
   -e SERVER_ADDR="$SERVER_ADDR" \
   "$CONTAINER_NAME" \
-  /etc/openvpn/add-client-inner.sh
+  /etc/openvpn-scripts/add-client-inner.sh
 
 OUT="./clients/${CLIENT_NAME}.ovpn"
 
