@@ -40,6 +40,7 @@ ecdh-curve secp384r1
 ca   /etc/openvpn/pki/ca.crt
 cert /etc/openvpn/pki/issued/{{SERVER_CERT_NAME}}.crt
 key  /etc/openvpn/pki/private/{{SERVER_CERT_NAME}}.key
+dh   /etc/openvpn/pki/dh.pem
 
 ##################################
 # PUSH
