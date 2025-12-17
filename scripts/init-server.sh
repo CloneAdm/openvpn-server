@@ -98,6 +98,26 @@ else
 fi
 
 ##################################
+# Проверка и исправление прав на data/
+##################################
+DATA_UID="$(stat -c '%u' "${DATA_DIR}")"
+DATA_GID="$(stat -c '%g' "${DATA_DIR}")"
+
+CUR_UID="$(id -u)"
+CUR_GID="$(id -g)"
+
+if [[ "${DATA_UID}" != "${CUR_UID}" || "${DATA_GID}" != "${CUR_GID}" ]]; then
+    echo -e "${YELLOW}Каталог data/ принадлежит другому пользователю${NC}"
+    echo -e "${CYAN}Исправляю права на data/...${NC}"
+
+    sudo chown -R "${CUR_UID}:${CUR_GID}" "${DATA_DIR}"
+
+    echo -e "${GREEN}Права исправлены${NC}\n"
+else
+    echo -e "${GREEN}Права на data/ корректны — пропускаю${NC}\n"
+fi
+
+##################################
 # Инициализация PKI
 ##################################
 if [ ! -d "${DATA_DIR}/pki" ]; then
