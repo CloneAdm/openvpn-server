@@ -101,16 +101,16 @@ openvpn-server/
 
 #### 1.1 Linux, Домашняя папка пользователя (~/openvpn-server)
 ```bash
-    cd ~
-    git clone https://github.com/CloneAdm/openvpn-server.git
-    cd openvpn-server
-    chmod +x scripts/*.sh
+cd ~
+git clone https://github.com/CloneAdm/openvpn-server.git
+cd openvpn-server
+chmod +x scripts/*.sh
 ```
 #### 1.2 Linux, Системная папка (/opt/openvpn-server)
 ```bash
-    sudo git clone https://github.com/CloneAdm/openvpn-server.git /opt/openvpn-server
-    cd /opt/openvpn-server
-    sudo chmod +x scripts/*.sh
+sudo git clone https://github.com/CloneAdm/openvpn-server.git /opt/openvpn-server
+cd /opt/openvpn-server
+sudo chmod +x scripts/*.sh
 ```
 
 ### 2. Инициализация сервера и запуск сервера
@@ -146,9 +146,9 @@ openvpn-server/
 
 #### 5.1 Для мелких изменений конфигурации openvpn.conf
 ```bash
-    docker compose restart
-    # или
-    # docker restart openvpn-server
+docker compose restart
+# или
+# docker restart openvpn-server
 ```
 
 #### 5.2 Для более значительных изменений или после инициализации PKI
@@ -158,9 +158,9 @@ openvpn-server/
 
 ### 6. Обновление образа (kylemanna/openvpn:latest) и перезапуск
 ```bash
-    docker compose pull
-    docker compose down
-    docker compose up -d
+docker compose pull
+docker compose down
+docker compose up -d
 ```
 
 ### 7. Проверка:
