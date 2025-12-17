@@ -1,4 +1,4 @@
-# OpenVPN Server (in Docker)
+# OpenVPN Server (in Docker) v2
 
 Репозиторий содержит набор конфигураций и shell-скриптов для развёртывания и администрирования OpenVPN-сервера в Docker.
 
@@ -48,17 +48,34 @@
 
 ```text
 openvpn-server/
-├── docker-compose.yml
-├── README.md
+├── in-docker/                  # всё, что копируется в контейнер
+│   ├── scripts/
+│   │   ├── init-pki.sh
+│   │   ├── gen-server.sh
+│   │   ├── add-client.sh
+│   │   ├── revoke-client.sh
+│   │   └── list-clients.sh
+│   │
+│   └── templates/
+│       └── client.ovpn.template
+│
+├── scripts/                    # хост-обёртки
+│   ├── init-server.sh
+│   ├── add-client.sh
+│   ├── revoke-client.sh
+│   └── list-clients.sh
+│
+├── data/                       # volume (/etc/openvpn)
+│   ├── pki/
+│   ├── openvpn.conf
+│   └── clients/
+│
+├── docker/
+│   └── Dockerfile
+│
+├── docker-compose.yaml
 ├── .gitignore
-├── templates/
-│   ├── openvpn.conf.template
-│   └── client.ovpn.template
-│   
-└── scripts/
-    ├── init-server.sh
-    ├── add-client.sh
-    └── revoke-client.sh
+└── README.md
 ```
 
 ### Каталоги, создаваемые во время работы
@@ -104,19 +121,19 @@ openvpn-server/
 cd ~
 git clone https://github.com/CloneAdm/openvpn-server.git
 cd openvpn-server
-chmod +x scripts/*.sh
+chmod +x scripts-old-old/*.sh
 ```
 #### 1.2 Linux, Системная папка (/opt/openvpn-server)
 ```bash
 sudo git clone https://github.com/CloneAdm/openvpn-server.git /opt/openvpn-server
 cd /opt/openvpn-server
-sudo chmod +x scripts/*.sh
+sudo chmod +x scripts-old-old/*.sh
 ```
 
 ### 2. Инициализация сервера и запуск сервера
 
 ```bash
-  ./scripts/init-server.sh
+  ./scripts-old-old/init-server-inner.sh
 ```
 
 На этом этапе:
@@ -176,7 +193,7 @@ docker compose up -d
 ### Добавление клиента
 
 ```bash
-  ./scripts/add-client.sh <client_name>
+  ./scripts-old-old/add-client-inner.sh <client_name>
 ```
 
 Результат:
@@ -198,7 +215,7 @@ clients/client_name.ovpn
 ### Отзыв клиента
 
 ```bash
-  ./scripts/revoke-client.sh client_name
+  ./scripts-old-old/revoke-client.sh client_name
 ```
 
 Результат:

@@ -1,6 +1,9 @@
+version: "3.9"
+
 services:
   openvpn:
-    image: kylemanna/openvpn:latest
+    build: ./docker
+    image: openvpn-server:local
     container_name: openvpn-server
     cap_add:
       - NET_ADMIN
@@ -10,16 +13,8 @@ services:
     volumes:
       - ./data:/etc/openvpn
     environment:
-      - EASYRSA_KEY_SIZE=4096
-      - EASYRSA_ALGO=ec
-      - EASYRSA_CURVE=secp384r1
-      - EASYRSA_DIGEST=sha512
-    networks:
-      - vpn-network
-    sysctls:
-      - net.ipv6.conf.default.forwarding=1
-      - net.ipv6.conf.all.forwarding=1
-
-networks:
-  vpn-network:
-    driver: bridge
+      EASYRSA_KEY_SIZE: 4096
+      EASYRSA_ALGO: ec
+      EASYRSA_CURVE: secp384r1
+      EASYRSA_DIGEST: sha512
+      EASYRSA_CA_PASS: ${EASYRSA_CA_PASS:-}

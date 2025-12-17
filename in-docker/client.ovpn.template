@@ -48,13 +48,17 @@ verb 3
 
 ################ КЛЮЧИ ################
 <ca>
+{{CA_CERT}}
 </ca>
 
 <cert>
+{{CLIENT_CERT}}
 </cert>
 
 <key>
+{{CLIENT_KEY}}
 </key>
 
 <tls-crypt>
+{{TLS_CRYPT_KEY}}
 </tls-crypt>

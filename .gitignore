@@ -19,3 +19,7 @@ clients/
 # OS
 .DS_Store
 Thumbs.db
+
+scripts-old-old/
+scripts-old/
+templates-old/
