@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  openvpn:
+    image: kylemanna/openvpn:latest
+    container_name: openvpn-server
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1194:1194/udp"
+    restart: unless-stopped
+    volumes:
+      - ./data:/etc/openvpn
+    environment:
+      - EASYRSA_KEY_SIZE=4096
+      - EASYRSA_ALGO=ec
+      - EASYRSA_CURVE=secp384r1
+      - EASYRSA_DIGEST=sha512
+    networks:
+      - vpn-network
+    sysctls:
+      - net.ipv6.conf.default.forwarding=1
+      - net.ipv6.conf.all.forwarding=1
+
+networks:
+  vpn-network:
+    driver: bridge

@@ -1,0 +1,56 @@
+##################################
+# OpenVPN Server (2.4.x)
+##################################
+
+# Сеть и транспорт
+port {{PORT}}
+proto {{PROTO}}
+dev tun
+topology subnet
+
+user nobody
+group nogroup
+persist-key
+persist-tun
+
+##################################
+# VPN подсеть
+##################################
+server {{VPN_NET}} {{VPN_MASK}}
+client-to-client
+keepalive 10 60
+
+##################################
+# Криптография
+##################################
+
+# Скрываем и шифруем TLS handshake
+tls-crypt /etc/openvpn/pki/ta.key
+
+# AEAD (HMAC встроен)
+cipher AES-256-GCM
+ncp-ciphers AES-256-GCM
+
+# ECC
+ecdh-curve secp384r1
+
+##################################
+# Сертификаты
+##################################
+ca   /etc/openvpn/pki/ca.crt
+cert /etc/openvpn/pki/issued/{{SERVER_CERT_NAME}}.crt
+key  /etc/openvpn/pki/private/{{SERVER_CERT_NAME}}.key
+
+##################################
+# PUSH
+##################################
+push "redirect-gateway def1"
+push "dhcp-option DNS {{DNS1}}"
+push "dhcp-option DNS {{DNS2}}"
+
+##################################
+# Логирование
+##################################
+status /etc/openvpn/status.log
+log-append /etc/openvpn/openvpn.log
+verb {{VERB}}
