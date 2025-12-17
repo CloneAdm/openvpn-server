@@ -22,7 +22,7 @@ CONF_TEMPLATE="${TEMPLATE_DIR}/openvpn.conf.template"
 CONF_FILE="${DATA_DIR}/openvpn.conf"
 
 ##################################
-# Константы конфигурации
+# Константы
 ##################################
 PORT="1194"
 PROTO="udp"
@@ -49,6 +49,10 @@ need_cmd() {
   command -v "$1" >/dev/null 2>&1 || die "$1 не найден"
 }
 
+get_public_ip() {
+    curl -s https://api.ipify.org || die "Не удалось определить публичный IP. Передайте его вручную"
+}
+
 ##################################
 # Проверки
 ##################################
@@ -56,46 +60,70 @@ echo -e "${CYAN}Проверка зависимостей...${NC}"
 need_cmd docker
 need_cmd docker-compose
 need_cmd sed
+need_cmd curl
 echo -e "${GREEN}OK!${NC}\n"
+
+##################################
+# Определение публичного IP сервера
+##################################
+SERVER_ADDRESS="${1:-}"
+if [ -z "$SERVER_ADDRESS" ]; then
+    echo -e "${CYAN}Определяю публичный IP сервера...${NC}"
+    SERVER_ADDRESS=$(get_public_ip)
+fi
+echo -e "${GREEN}Публичный IP сервера: $SERVER_ADDRESS${NC}\n"
 
 ##################################
 # Подготовка каталогов
 ##################################
 if [ ! -d "$DATA_DIR" ]; then
-    echo -e "${CYAN}Создаю директорию data...${NC}/"
-    mkdir -p "${DATA_DIR}"
+    echo -e "${CYAN}Создаю директорию data...${NC}"
+    mkdir -p "$DATA_DIR"
     echo -e "${GREEN}OK!${NC}\n"
+fi
+
+##################################
+# Генерация конфигурации сервера
+##################################
+if [ ! -f "${DATA_DIR}/ovpn_env.sh" ]; then
+    echo -e "${CYAN}Генерируем конфигурацию сервера...${NC}"
+    docker-compose run --rm openvpn ovpn_genconfig \
+        -u udp://${SERVER_ADDRESS} \
+        -C 'AES-256-GCM' \
+        -a 'SHA512' \
+        -c
+    echo -e "${GREEN}Конфигурация сгенерирована${NC}\n"
+else
+    echo -e "${YELLOW}Конфигурация сервера уже существует — пропускаю${NC}\n"
 fi
 
 ##################################
 # Инициализация PKI
 ##################################
-if [[ ! -d "${DATA_DIR}/pki" ]]; then
-  echo -e "${CYAN}Инициализация PKI...${NC}"
-  echo -e "${YELLOW}Будет создан CA — сохраните пароль!${NC}"
-  docker-compose run --rm openvpn ovpn_initpki
-  echo -e "${GREEN}PKI инициализирована${NC}\n"
+if [ ! -d "${DATA_DIR}/pki" ]; then
+    echo -e "${CYAN}Инициализация PKI...${NC}"
+    echo -e "${YELLOW}Будет создан CA — сохраните пароль!${NC}"
+    docker-compose run --rm openvpn ovpn_initpki
+    echo -e "${GREEN}PKI инициализирована${NC}\n"
 else
-  echo -e "${YELLOW}PKI уже существует — пропускаю${NC}\n"
+    echo -e "${YELLOW}PKI уже существует — пропускаю${NC}\n"
 fi
 
 ##################################
 # Генерация серверного сертификата
 ##################################
-if [[ ! -f "${DATA_DIR}/pki/issued/${SERVER_CERT_NAME}.crt" ]]; then
-  echo -e "${CYAN}Создание серверного сертификата (${SERVER_CERT_NAME})...${NC}"
-  docker-compose run --rm openvpn \
-    easyrsa build-server-full "${SERVER_CERT_NAME}" nopass
-  echo -e "${GREEN}Серверный сертификат создан${NC}\n"
+if [ ! -f "${DATA_DIR}/pki/issued/${SERVER_CERT_NAME}.crt" ]; then
+    echo -e "${CYAN}Создание серверного сертификата (${SERVER_CERT_NAME})...${NC}"
+    docker-compose run --rm openvpn easyrsa build-server-full "${SERVER_CERT_NAME}" nopass
+    echo -e "${GREEN}Серверный сертификат создан${NC}\n"
 else
-  echo -e "${YELLOW}Серверный сертификат уже существует — пропускаю${NC}\n"
+    echo -e "${YELLOW}Серверный сертификат уже существует — пропускаю${NC}\n"
 fi
 
 ##################################
 # Генерация openvpn.conf
 ##################################
 echo -e "${CYAN}Генерация openvpn.conf...${NC}"
-
 [[ -f "${CONF_TEMPLATE}" ]] || die "Шаблон не найден: ${CONF_TEMPLATE}"
 
 sed \
@@ -123,8 +151,7 @@ echo -e "${GREEN}OpenVPN запущен${NC}\n"
 ##################################
 echo -e "${PURPLE}=== ГОТОВО ===${NC}"
 echo -e "Конфигурация: ${CONF_FILE}"
-echo -e "Сертификат сервера: ${SERVER_CERT_NAME}"
-echo ""
+echo -e "Сертификат сервера: ${SERVER_CERT_NAME}\n"
 echo -e "${CYAN}Дальнейшие шаги:${NC}"
 echo "  1. Создать клиента: ./scripts/add-client.sh client1"
 echo "  2. Посмотреть логи: docker-compose logs -f openvpn"
