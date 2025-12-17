@@ -40,7 +40,6 @@ need_cmd() {
 }
 
 detect_public_ip() {
-  curl -fsS https://api.ipify.org || \
   curl -fsS https://ifconfig.me || \
   die "Не удалось определить публичный IP"
 }
