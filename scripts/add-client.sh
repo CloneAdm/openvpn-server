@@ -11,7 +11,7 @@ if [[ -z "$CLIENT_NAME" ]]; then
 fi
 
 if [[ -z "$SERVER_ADDR" ]]; then
-  SERVER_ADDR="$(curl -fsS https://api.ipify.org)"
+  SERVER_ADDR="$(curl -fsS https://ifconfig.me)"
 fi
 
 echo "[*] Генерация клиента внутри контейнера..."
