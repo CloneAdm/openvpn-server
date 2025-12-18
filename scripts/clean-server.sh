@@ -10,6 +10,7 @@ NC='\033[0m'
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="${ROOT_DIR}/data"
+CLIENT_DIR="${ROOT_DIR}/clients"
 
 echo -e "${CYAN}[*] Остановка контейнера...${NC}"
 docker compose down || echo -e "${YELLOW}[WARN] Контейнер не запущен или уже остановлен${NC}"
@@ -35,8 +36,11 @@ read -p "Удалить папку data/ (PKI и клиенты)? [y/N]: " DELET
 if [[ "${DELETE_DATA,,}" == "y" ]]; then
     sudo rm -rf "${DATA_DIR}"
     echo -e "${GREEN}[OK] Папка data/ удалена${NC}"
+
+    sudo rm -rf "${CLIENT_DIR}"
+    echo -e "${GREEN}[OK] Папка clients/ удалена${NC}"
 else
-    echo -e "${YELLOW}[INFO] Папка data/ сохранена${NC}"
+    echo -e "${YELLOW}[INFO] Папки data/ и clients/ сохранены${NC}"
 fi
 
 echo -e "${PURPLE}[=== Очистка завершена ===]${NC}"
